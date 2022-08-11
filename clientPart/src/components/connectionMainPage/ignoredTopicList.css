@@ -1,0 +1,8 @@
+.ignored-topic-list {
+    overflow: auto;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+    max-height: 78px;
+  }

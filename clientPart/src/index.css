@@ -1,0 +1,70 @@
+body {
+    margin: 0;
+    font-family: "IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+.show-editor {
+    height: 0;
+    opacity: 0;
+    padding: 0;
+    transition: 0.5s;
+    margin-top: 0;
+    animation: show-animation 0.5s 1;
+    animation-fill-mode: forwards;
+}
+
+.hide-editor {
+    margin-top: 54px;
+    height: 108px;
+    opacity: 1;
+    box-shadow: 5px 5px 12px -5px #00000080;
+    padding: 18px;
+    transition: 0.5s;
+    animation: hide-animation 0.5s 1;
+    animation-fill-mode: forwards; 
+}
+
+@keyframes show-animation {
+    0% {
+        height: 0;
+        opacity: 0;
+        padding: 0;
+        margin-top: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 1;
+        box-shadow: 5px 5px 12px -5px #00000080;
+        padding: 18px;
+        margin-top: 54px;
+        height: 128px; 
+    }
+}
+
+@keyframes hide-animation {
+    0% {
+        height: 128px;
+        margin-top: 54px;
+        opacity: 1;
+        box-shadow: 5px 5px 12px -5px #00000080;
+        padding: 18px;
+    }
+    50% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 0;
+        height: 0;
+        padding: 0;
+        margin-top: 0; 
+    }
+}
