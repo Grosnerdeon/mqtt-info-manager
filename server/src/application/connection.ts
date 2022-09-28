@@ -236,7 +236,15 @@ export class Connection {
             const regexpFilterAnyInTopic = new RegExp(REGEXP_FILTER_ANY_IN_TOPIC); 
             const globalTopicRegExp = new RegExp(REGEXP_GLOBAL_TOPIC);
             const verifyGlobalTopicRegExp = globalTopicRegExp.test(globalTopic);
-            const verifyRegexpFilterAnyInTopic = regexpFilterAnyInTopic.test(globalTopic)
+            const verifyRegexpFilterAnyInTopic = regexpFilterAnyInTopic.test(globalTopic);
+            const mqttMessage: IMQTTMessage = {
+                topic,
+                retain: packet.retain,
+                qos: packet.qos,
+                message: defineIsJson(message.toString()) ? 
+                            JSON.parse(message.toString()) : message.toString(),
+                time: new Date().toISOString()
+            };
 
             if (!verifyGlobalTopicRegExp && verifyRegexpFilterAnyInTopic) {
                 const { checked } = this.distributionOfMessageByTopic(globalTopic, topic)
