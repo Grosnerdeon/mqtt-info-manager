@@ -234,8 +234,11 @@ export class Connection {
 
         [...this.globalTopics.values()].forEach(globalTopic => {
             const regexpFilterAnyInTopic = new RegExp(REGEXP_FILTER_ANY_IN_TOPIC); 
+            const globalTopicRegExp = new RegExp(REGEXP_GLOBAL_TOPIC);
+            const verifyGlobalTopicRegExp = globalTopicRegExp.test(globalTopic);
+            const verifyRegexpFilterAnyInTopic = regexpFilterAnyInTopic.test(globalTopic)
 
-            if (!this.globalTopicRegExp.test(globalTopic) && regexpFilterAnyInTopic.test(globalTopic)) {
+            if (!verifyGlobalTopicRegExp && verifyRegexpFilterAnyInTopic) {
                 const { checked } = this.distributionOfMessageByTopic(globalTopic, topic)
 
                 if (this.topics.get(globalTopic).ignoredTopics.length) {
@@ -253,8 +256,8 @@ export class Connection {
                 }
             }
 
-            if (this.globalTopicRegExp.test(globalTopic) && !regexpFilterAnyInTopic.test(globalTopic)) {
-                const [includeTopic] = globalTopic.split(this.globalTopicRegExp);
+            if (verifyGlobalTopicRegExp && !verifyRegexpFilterAnyInTopic) {
+                const [includeTopic] = globalTopic.split(globalTopicRegExp);
 
                 const reqExpIncludeTopic = new RegExp(`^${includeTopic}`);
                 
@@ -272,13 +275,13 @@ export class Connection {
                 }
             }
 
-            if (this.globalTopicRegExp.test(globalTopic) && regexpFilterAnyInTopic.test(globalTopic)) {
+            if (verifyGlobalTopicRegExp && verifyRegexpFilterAnyInTopic) {
                 const topicSplitedArray = topic.split('/');
                 const globalTopicSplitedArray = globalTopic.split('/');
 
                 topicSplitedArray.length === globalTopicSplitedArray.length;
                 const { topicCheck, checked } = this.distributionOfMessageByTopic(globalTopic.split('/#')[0], topicSplitedArray.join('/'))
-                const [includeTopic] = globalTopic.split(this.globalTopicRegExp);
+                const [includeTopic] = globalTopic.split(globalTopicRegExp);
                 const reqExpIncludeTopic = new RegExp(`^${topicCheck}`);
 
                 if (reqExpIncludeTopic.test(topicCheck)) {
@@ -459,9 +462,10 @@ export class Connection {
 
     subscribeTopic (topic: string) {
         let isGlobal = false;
-        const regexpFilterAnyInTopic = new RegExp(REGEXP_FILTER_ANY_IN_TOPIC); 
+        const regexpFilterAnyInTopic = new RegExp(REGEXP_FILTER_ANY_IN_TOPIC);
+        const globalTopicRegExp = new RegExp(REGEXP_GLOBAL_TOPIC); 
 
-        if (!(this.globalTopicRegExp.test(topic) || regexpFilterAnyInTopic.test(topic))) {
+        if (!(globalTopicRegExp.test(topic) || regexpFilterAnyInTopic.test(topic))) {
             this.client.subscribe(topic);
         } else {
             if (topic !== '#') {
@@ -503,7 +507,9 @@ export class Connection {
     }
 
     unsubscribe (topic: string) {
-        if (!this.globalTopicRegExp.test(topic)) {
+        const globalTopicRegExp = new RegExp(REGEXP_GLOBAL_TOPIC);
+
+        if (!globalTopicRegExp.test(topic)) {
             this.client.unsubscribe(topic);
         }
 
