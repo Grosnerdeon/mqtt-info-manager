@@ -19,3 +19,13 @@ export interface IMQTTMessage {
     retain: boolean
     message: any
 }
+
+export interface IConfiguredPublisher {
+    connectionId: string
+    publisherId: string
+    interval: number
+    message: string
+    topic: string,
+    active: boolean
+    intervalTimer?: NodeJS.Timer
+}

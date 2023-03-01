@@ -22,16 +22,9 @@ export enum connectionAction {
     CLEAR_MESSAGES_TO_TOPIC = 'CLEAR_MESSAGES_TO_TOPIC'  
 }
 
-export interface IConnectionDB {
-    _id: string
-    url: string
-    port: number
-    isOpen: boolean
-    subscriberIDs: string[]
-    publisherIDs: string[]
-}
-
-export interface IConnectionTempalte {
-    url: string
-    port: number
+export interface ITopic {
+    instanceName: string
+    isGlobal: boolean
+    messagesFromTopic: IMQTTMessage[]
+    ignoredTopics: string[]
 }

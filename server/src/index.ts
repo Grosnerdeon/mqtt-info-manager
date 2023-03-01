@@ -1,7 +1,6 @@
 import express from 'express'
 import * as bodyParser from 'body-parser';
 import connectionsRouter from './routing/connections';
-import databaseConnections from './database/databaseConnection';
 
 const app = express();
 const port = 5000;
