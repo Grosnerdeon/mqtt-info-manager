@@ -1,5 +1,5 @@
 import mqtt, { MqttClient } from "mqtt";
-import { ITopic, REGEXP_FILTER_ANY_IN_TOPIC, REGEXP_GLOBAL_TOPIC } from "../interfaces/connections";
+import { ITopic, REGEXP_FILTER_ANY_IN_TOPIC, REGEXP_GLOBAL_TOPIC } from "../interfaces/connection";
 import { applicationAction, applicationEntity, MAX_COUNT_MESSAGE_FOR_EACH_TOPIC } from "../interfaces/application";
 import { 
     clientReaction,
@@ -22,15 +22,32 @@ export class Connection {
     globalTopicRegExp: RegExp;
     globalTopics: Set<string>;
 
-    constructor (url: string, port: number) {
-        this.id = generateId();
-        this.url = url;
-        this.port = port;
-        this.topics = new Map();
-        this.configuredPublishers = new Map();
-        this.globalTopicRegExp = new RegExp(REGEXP_GLOBAL_TOPIC);
+    constructor (url: string, port: number, topics?, isOpen?, configuredPublishers?, globalTopics?, id?, isDB?) {
+        if (isDB) {
+            this.id = id;
+            this.url = url;
+            this.port = port;
+            this.isOpen = isOpen;
+            this.topics = new Map();
+            this.configuredPublishers = new Map();
+            this.globalTopics = new Set();
+            topics.forEach(topic => this.topics.set(topic.instanceName, topic));
+            configuredPublishers.forEach(publisher => this.configuredPublishers.set(publisher.publisherId, publisher));
+            globalTopics.forEach(topic => this.globalTopics.add(topic));
 
-        this.globalTopics = new Set();
+            if (this.isOpen) {
+                this.openConnection();
+            }
+        } else {
+            this.id = id || generateId();
+            this.url = url;
+            this.port = port;
+            this.topics = new Map();
+            this.configuredPublishers = new Map();
+            this.globalTopicRegExp = new RegExp(REGEXP_GLOBAL_TOPIC);
+    
+            this.globalTopics = new Set();
+        }
     }
 
     addListener (listenerName: string, callback: Function) {

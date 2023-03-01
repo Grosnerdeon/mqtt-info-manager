@@ -1,12 +1,31 @@
 import express, { request } from 'express'
 import application from '../../application';
 import { Connection } from '../../application/connection';
-import { connectionAction } from '../../interfaces/connections';
+import { connectionAction } from '../../interfaces/connection';
 import { circularJSON } from '../../modules/utilityMethods';
+import databaseConnections from '../../database/databaseConnection';
 
 const connectionsRouter = express.Router();
 
-connectionsRouter.get('/all', (_, response) => {
+connectionsRouter.get('/all', async (_, response) => {
+    if (application.connections.size === 0) {
+        const connections: any = await databaseConnections.getAll();
+
+        connections.forEach(connection => {
+            application.connections.set(connection._id, 
+                new Connection(
+                    connection.url, 
+                    connection.port, 
+                    connection.topics, 
+                    connection.isOpen, 
+                    connection.configuredPublishers, 
+                    connection.globalTopics, 
+                    connection._id,
+                    true
+                ));
+        });
+    }
+
     const allConnections = [...application.connections.values()]
         .map((connection: Connection) => ({
             id: connection.id,
@@ -40,7 +59,32 @@ connectionsRouter.post('/create', (request, response) => {
     try {
         const { url, port } = request.body;
 
-        application.createConnection(url, port);
+        const id = application.createConnection(url, port);
+        const connection = application.connections.get(id);
+
+        databaseConnections.insert({
+            url: connection.url,
+            port: connection.port,
+            configuredPublishers: [...connection.configuredPublishers.values()],
+            topics: [...connection.topics.values()].map(topic => ({
+                instanceName: topic.instanceName,
+                isGlobal: topic.isGlobal,
+                messagesFromTopic: [],
+                ignoredTopics: topic.ignoredTopics
+            })),
+            globalTopics: [...connection.globalTopics.values()],
+            isOpen: connection.isOpen
+        }, (err, newCon) => {
+            application.connections.delete(id);
+
+            application.connections.set(newCon.id, new Connection(newCon.url, newCon.port, 
+                newCon.topics, 
+                newCon.isOpen, 
+                newCon.configuredPublishers, 
+                newCon.globalTopics, 
+                newCon._id,
+                true))
+        });
 
         response.statusCode = 200;
         response.send();  
@@ -54,6 +98,8 @@ connectionsRouter.delete('/:id', (request, response) => {
     const { id } = request.params;
 
     application.deleteConnection(id);
+
+    databaseConnections.removeById(id);
 
     response.statusCode = 200;
     response.send();

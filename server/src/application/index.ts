@@ -2,7 +2,7 @@ import { applicationAction, applicationEntity } from "../interfaces/application"
 import websocetManager from "../websocetManager";
 import { Connection } from "./connection";
 import verification from "../modules/verification";
-import { REGEXP_PORT, REGEXP_URL } from "../interfaces/connections";
+import { REGEXP_PORT, REGEXP_URL } from "../interfaces/connection";
 
 class Application {
     connections: Map<string, Connection>
@@ -59,6 +59,8 @@ class Application {
                 configuredPublishers: [...newConnection.configuredPublishers.entries()]
             }
         });
+
+        return newConnection.id;
     }
 
     deleteConnection (connectionId: string) {
